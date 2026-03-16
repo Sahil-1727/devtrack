@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-page">
+
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {{ current_user.username[0].upper() }}
+        </div>
+        <div>
+            <h2>{{ current_user.username }}</h2>
+            <p>{{ current_user.email }}</p>
+            <p class="profile-stat">{{ total_apps }} applications tracked</p>
+        </div>
+    </div>
+
+    <div class="profile-forms">
+
+        <!-- Update Profile Form -->
+        <div class="profile-card">
+            <h3>Update Profile</h3>
+            <form method="POST" action="">
+                {{ profile_form.hidden_tag() }}
+
+                <div class="form-group">
+                    {{ profile_form.username.label }}
+                    {{ profile_form.username(class="form-input") }}
+                    {% if profile_form.username.errors %}
+                        {% for error in profile_form.username.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ profile_form.email.label }}
+                    {{ profile_form.email(class="form-input") }}
+                    {% if profile_form.email.errors %}
+                        {% for error in profile_form.email.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+              <!-- Replace profile_form submit with this -->
+<input type="hidden" name="form_type" value="update_profile">
+<button type="submit" class="btn">Update Profile</button>
+            </form>
+        </div>
+
+        <!-- Change Password Form -->
+        <div class="profile-card">
+            <h3>Change Password</h3>
+            <form method="POST" action="">
+                {{ password_form.hidden_tag() }}
+
+                <div class="form-group">
+                    {{ password_form.current_password.label }}
+                    {{ password_form.current_password(class="form-input") }}
+                    {% if password_form.current_password.errors %}
+                        {% for error in password_form.current_password.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ password_form.new_password.label }}
+                    {{ password_form.new_password(class="form-input") }}
+                    {% if password_form.new_password.errors %}
+                        {% for error in password_form.new_password.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ password_form.confirm_password.label }}
+                    {{ password_form.confirm_password(class="form-input") }}
+                    {% if password_form.confirm_password.errors %}
+                        {% for error in password_form.confirm_password.errors %}
+                            <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Replace password_form submit with this -->
+<input type="hidden" name="form_type" value="change_password">
+<button type="submit" class="btn">Change Password</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

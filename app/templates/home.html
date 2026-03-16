@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="hero">
+        <h1>Welcome to DevTrack</h1>
+        <p> Track all your internship applications in one place </p>
+        <a href="/auth/register" >Get Started</a>
+        <a href="/auth/login"> Login </a>
+
+    </div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <h3>{{ stats.total_users }}</h3>
+            <p>Users</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ stats.total_applications }}</h3>
+            <p>Applications Tracked</p>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h2>Welcome, {{ current_user.username }}! 👋</h2>
+        <p>Track and manage your internship applications</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat-box">
+            <h3>{{ stats.total }}</h3>
+            <p>Total</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ stats.interviews }}</h3>
+            <p>Interviews</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ stats.offers }}</h3>
+            <p>Offers</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ stats.rejected }}</h3>
+            <p>Rejected</p>
+        </div>
+    </div>
+
+    <div class="dashboard-actions">
+        <a href="{{ url_for('main.new_application') }}" class="btn">+ Add Application</a>
+    </div>
+
+    <!-- Search Bar -->
+    <form method="GET" action="{{ url_for('main.dashboard') }}" class="search-form">
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Search by company or role..."
+            class="search-input"
+        >
+        <input type="hidden" name="status" value="{{ status_filter }}">
+        <button type="submit" class="btn">Search</button>
+        {% if search %}
+            <a href="{{ url_for('main.dashboard', status=status_filter) }}" class="btn-cancel">Clear</a>
+        {% endif %}
+    </form>
+
+    <!-- Filter Buttons -->
+    <div class="filters">
+        <a href="{{ url_for('main.dashboard', search=search) }}"
+           class="filter-btn {% if status_filter == 'All' %}active{% endif %}">All</a>
+        <a href="{{ url_for('main.dashboard', status='Applied', search=search) }}"
+           class="filter-btn {% if status_filter == 'Applied' %}active{% endif %}">Applied</a>
+        <a href="{{ url_for('main.dashboard', status='Interview', search=search) }}"
+           class="filter-btn {% if status_filter == 'Interview' %}active{% endif %}">Interview</a>
+        <a href="{{ url_for('main.dashboard', status='Offer', search=search) }}"
+           class="filter-btn {% if status_filter == 'Offer' %}active{% endif %}">Offer</a>
+        <a href="{{ url_for('main.dashboard', status='Rejected', search=search) }}"
+           class="filter-btn {% if status_filter == 'Rejected' %}active{% endif %}">Rejected</a>
+    </div>
+
+    <!-- Search result info -->
+    {% if search %}
+        <p class="search-info">
+            Showing results for "{{ search }}" — {{ pagination.total }} found
+        </p>
+    {% endif %}
+
+    <div class="applications-list">
+        {% if applications %}
+            {% for app in applications %}
+            <div class="application-card">
+                <div class="app-info">
+                    <h3>{{ app.company }}</h3>
+                    <p>{{ app.role }}</p>
+                    <small>{{ app.date_applied.strftime('%d %b %Y') }}</small>
+                    {% if app.notes %}
+                        <p class="app-notes">{{ app.notes }}</p>
+                    {% endif %}
+                </div>
+                <div class="app-right">
+                    <span class="badge {{ app.status.lower() }}">{{ app.status }}</span>
+                    <a href="{{ url_for('main.edit_application', application_id=app.id) }}" class="btn-edit">Edit</a>
+                    <form method="POST" action="{{ url_for('main.delete_application', application_id=app.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn-delete" onclick="return confirm('Delete this application?')">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                {% if search %}
+                    <p>No results for "{{ search }}"</p>
+                {% elif status_filter != 'All' %}
+                    <p>No {{ status_filter }} applications yet.</p>
+                {% else %}
+                    <p>No applications yet. Add your first one!</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div class="pagination">
+        {% if pagination.has_prev %}
+            <a href="{{ url_for('main.dashboard', page=pagination.prev_num, status=status_filter, search=search) }}" class="page-btn">← Prev</a>
+        {% endif %}
+
+        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if page_num %}
+                <a href="{{ url_for('main.dashboard', page=page_num, status=status_filter, search=search) }}"
+                   class="page-btn {% if page_num == pagination.page %}active{% endif %}">
+                    {{ page_num }}
+                </a>
+            {% else %}
+                <span class="page-dots">...</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagination.has_next %}
+            <a href="{{ url_for('main.dashboard', page=pagination.next_num, status=status_filter, search=search) }}" class="page-btn">Next →</a>
+        {% endif %}
+
+        <span class="page-info">Page {{ pagination.page }} of {{ pagination.pages }}</span>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
