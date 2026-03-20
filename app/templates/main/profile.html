@@ -10,17 +10,30 @@
         <div>
             <h2>{{ current_user.username }}</h2>
             <p>{{ current_user.email }}</p>
+            {% if current_user.college %}
+                <p>{{ current_user.college }} — {{ current_user.branch }}</p>
+            {% endif %}
+            {% if current_user.cgpa %}
+                <p>CGPA: {{ current_user.cgpa }} | Backlogs: {{ current_user.backlogs }}</p>
+            {% endif %}
             <p class="profile-stat">{{ total_apps }} applications tracked</p>
+            {% if current_user.skills %}
+                <div class="skills-list">
+                    {% for skill in current_user.skills_list() %}
+                        <span class="skill-tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </div>
 
     <div class="profile-forms">
 
-        <!-- Update Profile Form -->
         <div class="profile-card">
-            <h3>Update Profile</h3>
+            <h3>Academic Profile</h3>
             <form method="POST" action="">
                 {{ profile_form.hidden_tag() }}
+                <input type="hidden" name="form_type" value="update_profile">
 
                 <div class="form-group">
                     {{ profile_form.username.label }}
@@ -42,51 +55,75 @@
                     {% endif %}
                 </div>
 
-              <!-- Replace profile_form submit with this -->
-<input type="hidden" name="form_type" value="update_profile">
-<button type="submit" class="btn">Update Profile</button>
+                <div class="form-group">
+                    {{ profile_form.college.label }}
+                    {{ profile_form.college(class="form-input") }}
+                </div>
+
+                <div class="form-group">
+                    {{ profile_form.branch.label }}
+                    {{ profile_form.branch(class="form-input") }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ profile_form.graduation_year.label }}
+                        {{ profile_form.graduation_year(class="form-input") }}
+                    </div>
+                    <div class="form-group">
+                        {{ profile_form.cgpa.label }}
+                        {{ profile_form.cgpa(class="form-input", step="0.01") }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ profile_form.backlogs.label }}
+                        {{ profile_form.backlogs(class="form-input") }}
+                    </div>
+                    <div class="form-group">
+                        {{ profile_form.internship_count.label }}
+                        {{ profile_form.internship_count(class="form-input") }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ profile_form.project_count.label }}
+                    {{ profile_form.project_count(class="form-input") }}
+                </div>
+
+                <div class="form-group">
+                    {{ profile_form.skills.label }}
+                    {{ profile_form.skills(class="form-input", placeholder="Python, Flask, SQL, Machine Learning") }}
+                    <small style="color:#888">Separate skills with commas</small>
+                </div>
+
+                <button type="submit" class="btn">Update Profile</button>
             </form>
         </div>
 
-        <!-- Change Password Form -->
         <div class="profile-card">
             <h3>Change Password</h3>
             <form method="POST" action="">
                 {{ password_form.hidden_tag() }}
+                <input type="hidden" name="form_type" value="change_password">
 
                 <div class="form-group">
                     {{ password_form.current_password.label }}
                     {{ password_form.current_password(class="form-input") }}
-                    {% if password_form.current_password.errors %}
-                        {% for error in password_form.current_password.errors %}
-                            <span class="error">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
                 </div>
 
                 <div class="form-group">
                     {{ password_form.new_password.label }}
                     {{ password_form.new_password(class="form-input") }}
-                    {% if password_form.new_password.errors %}
-                        {% for error in password_form.new_password.errors %}
-                            <span class="error">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
                 </div>
 
                 <div class="form-group">
                     {{ password_form.confirm_password.label }}
                     {{ password_form.confirm_password(class="form-input") }}
-                    {% if password_form.confirm_password.errors %}
-                        {% for error in password_form.confirm_password.errors %}
-                            <span class="error">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
                 </div>
 
-                <!-- Replace password_form submit with this -->
-<input type="hidden" name="form_type" value="change_password">
-<button type="submit" class="btn">Change Password</button>
+                <button type="submit" class="btn">Change Password</button>
             </form>
         </div>
 

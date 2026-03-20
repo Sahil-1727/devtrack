@@ -73,9 +73,14 @@ def new_application():
             company=form.company.data,
             role=form.role.data,
             status=form.status.data,
+            location=form.location.data,
+            job_type=form.job_type.data,
+            salary=form.salary.data,
+            source=form.source.data,
             notes=form.notes.data,
             user_id=current_user.id
         )
+
         db.session.add(application)
         db.session.commit()
         flash('Application added!', 'success')
@@ -128,7 +133,7 @@ def delete_application(application_id):
     return redirect(url_for('main.dashboard'))
 
 
-@main.route('/profile', methods = ['GET','POST'])
+@main.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     profile_form = UpdateProfileForm()
@@ -137,25 +142,40 @@ def profile():
     if profile_form.validate_on_submit() and request.form.get('form_type') == 'update_profile':
         current_user.username = profile_form.username.data
         current_user.email = profile_form.email.data
+        current_user.college = profile_form.college.data
+        current_user.branch = profile_form.branch.data
+        current_user.graduation_year = profile_form.graduation_year.data
+        current_user.cgpa = profile_form.cgpa.data
+        current_user.backlogs = profile_form.backlogs.data
+        current_user.internship_count = profile_form.internship_count.data
+        current_user.project_count = profile_form.project_count.data
+        current_user.skills = profile_form.skills.data
         db.session.commit()
-        flash('Profile Updated', 'success')
+        flash('Profile updated!', 'success')
         return redirect(url_for('main.profile'))
-    
 
     if password_form.validate_on_submit() and request.form.get('form_type') == 'change_password':
         if bcrypt.check_password_hash(current_user.password, password_form.current_password.data):
-            hashed_password = bcrypt.generate_password_hash(password_form.new_password.data).decode('utf-8')
-            current_user.password = hashed_password
+            current_user.password = bcrypt.generate_password_hash(
+                password_form.new_password.data
+            ).decode('utf-8')
             db.session.commit()
-            flash('Password Updated', 'success')
+            flash('Password changed!', 'success')
             return redirect(url_for('main.profile'))
         else:
             flash('Current password is incorrect.', 'danger')
 
-
     if request.method == 'GET':
         profile_form.username.data = current_user.username
         profile_form.email.data = current_user.email
+        profile_form.college.data = current_user.college
+        profile_form.branch.data = current_user.branch
+        profile_form.graduation_year.data = current_user.graduation_year
+        profile_form.cgpa.data = current_user.cgpa
+        profile_form.backlogs.data = current_user.backlogs
+        profile_form.internship_count.data = current_user.internship_count
+        profile_form.project_count.data = current_user.project_count
+        profile_form.skills.data = current_user.skills
 
     total_apps = Application.query.filter_by(user_id=current_user.id).count()
 
