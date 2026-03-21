@@ -46,8 +46,10 @@ def dashboard():
     applications = pagination.items
 
     all_applications = Application.query.filter_by(user_id=current_user.id).all()
+
     stats = {
         'total': len(all_applications),
+        'applied': len([a for a in all_applications if a.status == 'Applied']),
         'interviews': len([a for a in all_applications if a.status == 'Interview']),
         'offers': len([a for a in all_applications if a.status == 'Offer']),
         'rejected': len([a for a in all_applications if a.status == 'Rejected'])

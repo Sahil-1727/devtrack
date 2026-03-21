@@ -7,10 +7,15 @@
         <p>Track and manage your internship applications</p>
     </div>
 
+    <!-- Stats Row -->
     <div class="stats">
         <div class="stat-box">
             <h3>{{ stats.total }}</h3>
             <p>Total</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ stats.applied }}</h3>
+            <p>Applied</p>
         </div>
         <div class="stat-box">
             <h3>{{ stats.interviews }}</h3>
@@ -25,6 +30,50 @@
             <p>Rejected</p>
         </div>
     </div>
+
+    <!-- Chart Section -->
+    {% if stats.total > 0 %}
+    <div class="chart-section">
+        <div class="chart-card">
+            <h3>Application Status Breakdown</h3>
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Quick Stats</h3>
+            <div class="quick-stats">
+                <div class="quick-stat-item">
+                    <span class="quick-dot applied-dot"></span>
+                    <span>Applied</span>
+                    <strong>{{ stats.applied }}</strong>
+                </div>
+                <div class="quick-stat-item">
+                    <span class="quick-dot interview-dot"></span>
+                    <span>Interview</span>
+                    <strong>{{ stats.interviews }}</strong>
+                </div>
+                <div class="quick-stat-item">
+                    <span class="quick-dot offer-dot"></span>
+                    <span>Offer</span>
+                    <strong>{{ stats.offers }}</strong>
+                </div>
+                <div class="quick-stat-item">
+                    <span class="quick-dot rejected-dot"></span>
+                    <span>Rejected</span>
+                    <strong>{{ stats.rejected }}</strong>
+                </div>
+                {% if stats.total > 0 %}
+                <div class="quick-stat-item success-rate">
+                    <span>Success Rate</span>
+                    <strong>{{ ((stats.offers / stats.total) * 100) | round(1) }}%</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <div class="dashboard-actions">
         <a href="{{ url_for('main.new_application') }}" class="btn">+ Add Application</a>
@@ -60,13 +109,13 @@
            class="filter-btn {% if status_filter == 'Rejected' %}active{% endif %}">Rejected</a>
     </div>
 
-    <!-- Search result info -->
     {% if search %}
         <p class="search-info">
             Showing results for "{{ search }}" — {{ pagination.total }} found
         </p>
     {% endif %}
 
+    <!-- Applications List -->
     <div class="applications-list">
         {% if applications %}
             {% for app in applications %}
@@ -74,7 +123,18 @@
                 <div class="app-info">
                     <h3>{{ app.company }}</h3>
                     <p>{{ app.role }}</p>
-                    <small>{{ app.date_applied.strftime('%d %b %Y') }}</small>
+                    <div class="app-meta">
+                        <small>{{ app.date_applied.strftime('%d %b %Y') }}</small>
+                        {% if app.location %}
+                            <small>📍 {{ app.location }}</small>
+                        {% endif %}
+                        {% if app.salary %}
+                            <small>💰 ₹{{ app.salary }}/month</small>
+                        {% endif %}
+                        {% if app.source %}
+                            <small>🔗 {{ app.source }}</small>
+                        {% endif %}
+                    </div>
                     {% if app.notes %}
                         <p class="app-notes">{{ app.notes }}</p>
                     {% endif %}
@@ -129,4 +189,59 @@
     {% endif %}
 
 </div>
+
+<!-- Chart.js from CDN — no installation needed -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+<script>
+    // Data passed from Flask to JavaScript
+    const applied = {{ stats.applied }};
+    const interviews = {{ stats.interviews }};
+    const offers = {{ stats.offers }};
+    const rejected = {{ stats.rejected }};
+
+    // Only draw chart if there's data
+    if (applied + interviews + offers + rejected > 0) {
+        const ctx = document.getElementById('statusChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Applied', 'Interview', 'Offer', 'Rejected'],
+                datasets: [{
+                    data: [applied, interviews, offers, rejected],
+                    backgroundColor: [
+                        '#cce5ff',  // Applied — blue
+                        '#fff3cd',  // Interview — yellow
+                        '#d4edda',  // Offer — green
+                        '#f8d7da'   // Rejected — red
+                    ],
+                    borderColor: [
+                        '#004085',
+                        '#856404',
+                        '#155724',
+                        '#721c24'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 13
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+
 {% endblock %}
